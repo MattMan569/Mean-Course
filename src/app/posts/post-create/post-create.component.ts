@@ -9,7 +9,7 @@ import { PostsService } from '../posts.service';
   styleUrls: ['./post-create.component.scss'],
 })
 export class PostCreateComponent {
-  constructor(public postsService: PostsService) {}
+  constructor(private postsService: PostsService) {}
 
   onAddPost(form: NgForm) {
     if (form.invalid) {
