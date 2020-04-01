@@ -87,8 +87,21 @@ router.put(
 
 router.get("/", async (req, res, next) => {
   try {
-    const posts = await Post.find();
-    res.json(posts);
+    const pageSize = +req.query.pageSize;
+    const page = +req.query.page;
+    const postQuery = Post.find();
+
+    // Modify the query of pagination options are defined
+    if (pageSize && page) {
+      postQuery.skip(pageSize * (page - 1)).limit(pageSize);
+    }
+
+    const [posts, count] = await Promise.all([
+      postQuery.exec(),
+      Post.countDocuments().exec(),
+    ]);
+
+    res.json({posts, count});
   } catch (error) {
     console.log(error);
     res.status(500).send();
