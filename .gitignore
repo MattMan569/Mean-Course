@@ -1,5 +1,9 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+# Retain image file structure, but not the images
+/server/images/*
+!*.gitkeep
+
 # compiled output
 /dist
 /tmp

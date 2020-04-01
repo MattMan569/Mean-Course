@@ -35,19 +35,32 @@ export class PostsService {
   }
 
   // Add a post and emit an update event
-  addPost(title: string, content: string) {
-    const post: Post = { _id: null, title, content };
+  addPost(title: string, content: string, image: File) {
+    const postData = new FormData();
+    postData.append('title', title);
+    postData.append('content', content);
+    postData.append('image', image, title);
 
-    this.http.post<Post>('http://localhost:3000/api/posts', post, { observe: 'response' }).subscribe((response) => {
+    this.http.post<Post>('http://localhost:3000/api/posts', postData, { observe: 'response' }).subscribe((response) => {
       this.posts.push(response.body);
       this.postsUpdated.next([...this.posts]);
       this.router.navigate(['/']);
     });
   }
 
-  updatePost(id: string, title: string, content: string) {
-    const post: Post = { _id: id, title, content};
-    this.http.put<Post>(`http://localhost:3000/api/posts/${post._id}`, post, { observe: 'response' })
+  updatePost(id: string, title: string, content: string, image: File | string) {
+    let postData: Post | FormData;
+
+    if (typeof image === 'object') {
+      postData = new FormData();
+      postData.append('title', title);
+      postData.append('content', content);
+      postData.append('image', image, title);
+    } else {
+      postData = { _id: id, title, content, imagePath: image };
+    }
+
+    this.http.put<Post>(`http://localhost:3000/api/posts/${id}`, postData, { observe: 'response' })
       .subscribe((response) => {
         const oldPostIndex = this.posts.findIndex((postEl) => {
           return postEl._id === response.body._id;
