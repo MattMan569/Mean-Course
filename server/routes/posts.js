@@ -57,7 +57,7 @@ router.post(
       res.status(201).json(post);
     } catch (error) {
       console.log(error);
-      res.status(500).send();
+      res.status(500).json();
     }
   }
 );
@@ -77,10 +77,10 @@ router.put(
       const post = await Post.findByIdAndUpdate(req.params.id, newPost, {
         new: true
       });
-      res.send(post);
+      res.json(post);
     } catch (error) {
       console.log(error);
-      res.status(500).send();
+      res.status(500).json();
     }
   }
 );
@@ -104,7 +104,7 @@ router.get("/", async (req, res, next) => {
     res.json({posts, count});
   } catch (error) {
     console.log(error);
-    res.status(500).send();
+    res.status(500).json();
   }
 });
 
@@ -113,23 +113,23 @@ router.get("/:id", async (req, res) => {
     const post = await Post.findById(req.params.id);
 
     if (post) {
-      res.send(post);
+      res.json(post);
     } else {
-      res.sendStatus(404);
+      res.status(404).json();
     }
   } catch (error) {
     console.log(error);
-    res.sendStatus(500);
+    res.status(500).json();
   }
 });
 
 router.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findByIdAndDelete(req.params.id);
-    res.send(post);
+    res.json(post);
   } catch (error) {
     console.log(error);
-    res.status(500).send();
+    res.status(500).json();
   }
 });
 
