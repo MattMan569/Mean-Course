@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 
 const Post = require("./../models/post");
+const checkAuth = require("./../middleware/check-auth");
 
 const router = express.Router();
 
@@ -45,6 +46,7 @@ const storage = multer.diskStorage({
 
 router.post(
   "/",
+  checkAuth,
   multer({ storage: storage }).single("image"),
   async (req, res, next) => {
     try {
@@ -56,7 +58,7 @@ router.post(
 
       res.status(201).json(post);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       res.status(500).json();
     }
   }
@@ -64,6 +66,7 @@ router.post(
 
 router.put(
   "/:id",
+  checkAuth,
   multer({ storage: storage }).single("image"),
   async (req, res) => {
     try {
@@ -79,7 +82,7 @@ router.put(
       });
       res.json(post);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       res.status(500).json();
     }
   }
@@ -98,12 +101,12 @@ router.get("/", async (req, res, next) => {
 
     const [posts, count] = await Promise.all([
       postQuery.exec(),
-      Post.countDocuments().exec(),
+      Post.countDocuments().exec()
     ]);
 
-    res.json({posts, count});
+    res.json({ posts, count });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json();
   }
 });
@@ -118,17 +121,17 @@ router.get("/:id", async (req, res) => {
       res.status(404).json();
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json();
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", checkAuth, async (req, res) => {
   try {
     const post = await Post.findByIdAndDelete(req.params.id);
     res.json(post);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json();
   }
 });
