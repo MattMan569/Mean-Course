@@ -11,7 +11,7 @@ import { Post } from './post.model';
 export class PostsService {
   private posts: Post[] = [];
   private count: number;
-  private postsUpdated = new Subject<{posts: Post[], count: number}>();
+  private postsUpdated = new Subject<{ posts: Post[], count: number }>();
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -27,7 +27,7 @@ export class PostsService {
     // Set the pagination query parameters
     const queryParams = `?pageSize=${postsPerPage}&page=${currentPage}`;
 
-    this.http.get<{posts: Post[], count: number}>(`http://localhost:3000/api/posts${queryParams}`, { observe: 'response' })
+    this.http.get<{ posts: Post[], count: number }>(`http://localhost:3000/api/posts${queryParams}`, { observe: 'response' })
       .subscribe((response) => {
         this.posts = response.body.posts;
         this.count = response.body.count;
@@ -67,7 +67,13 @@ export class PostsService {
       postData.append('content', content);
       postData.append('image', image, title);
     } else {
-      postData = { _id: id, title, content, imagePath: image };
+      postData = {
+        _id: id,
+        creator: null,
+        title,
+        content,
+        imagePath: image,
+      };
     }
 
     this.http.put<Post>(`http://localhost:3000/api/posts/${id}`, postData, { observe: 'response' })

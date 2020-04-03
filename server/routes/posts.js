@@ -51,6 +51,7 @@ router.post(
   async (req, res, next) => {
     try {
       const post = await new Post({
+        creator: req.userData.userId,
         title: req.body.title,
         content: req.body.content,
         imagePath: getImagePath(req)
@@ -71,15 +72,24 @@ router.put(
   async (req, res) => {
     try {
       const newPost = req.body;
+      newPost.creator = req.userData.userId;
 
       // A new file has been uploaded
       if (req.file) {
         newPost.imagePath = getImagePath(req);
       }
 
-      const post = await Post.findByIdAndUpdate(req.params.id, newPost, {
-        new: true
+      const post = await Post.findOneAndUpdate({
+        _id: req.params.id,
+        creator: req.userData.userId,
+      }, newPost, {
+        new: true,
       });
+
+      if (!post) {
+        return res.status(401).json();
+      }
+
       res.json(post);
     } catch (error) {
       console.error(error);
@@ -128,7 +138,16 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", checkAuth, async (req, res) => {
   try {
-    const post = await Post.findByIdAndDelete(req.params.id);
+    // const post = await Post.findByIdAndDelete(req.params.id);
+    const post = await Post.findOneAndDelete({
+      _id: req.params.id,
+      creator: req.userData.userId,
+    });
+
+    if (!post) {
+      return res.status(401).json();
+    }
+
     res.json(post);
   } catch (error) {
     console.error(error);
