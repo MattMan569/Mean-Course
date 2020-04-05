@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { AuthData } from './auth-data.model';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
+
+import { AuthData } from './auth-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -91,9 +92,11 @@ export class AuthService {
       password,
     };
 
-    this.http.post('http://localhost:3000/api/user/signup', authData, { observe: 'response' })
-      .subscribe((response) => {
+    this.http.post('http://localhost:3000/api/user/signup', authData)
+      .subscribe(() => {
         this.router.navigate(['/login']);
+      }, () => {
+        this.authStatusListener.next(false);
       });
   }
 
@@ -119,6 +122,8 @@ export class AuthService {
 
           this.router.navigate(['/']);
         }
+      }, () => {
+        this.authStatusListener.next(false);
       });
   }
 

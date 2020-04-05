@@ -12,6 +12,7 @@ export class PostsService {
   private posts: Post[] = [];
   private count: number;
   private postsUpdated = new Subject<{ posts: Post[], count: number }>();
+  private requestError = new Subject<null>();
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -46,6 +47,11 @@ export class PostsService {
     return this.postsUpdated.asObservable();
   }
 
+  // Listen for request errors
+  getRequestErrorListener() {
+    return this.requestError.asObservable();
+  }
+
   // Add a post and emit an update event
   addPost(title: string, content: string, image: File) {
     const postData = new FormData();
@@ -53,9 +59,12 @@ export class PostsService {
     postData.append('content', content);
     postData.append('image', image, title);
 
-    this.http.post<Post>('http://localhost:3000/api/posts', postData, { observe: 'response' }).subscribe((response) => {
-      this.router.navigate(['/']);
-    });
+    this.http.post<Post>('http://localhost:3000/api/posts', postData, { observe: 'response' })
+      .subscribe((response) => {
+        this.router.navigate(['/']);
+      }, () => {
+        this.requestError.next();
+      });
   }
 
   updatePost(id: string, title: string, content: string, image: File | string) {
@@ -76,13 +85,15 @@ export class PostsService {
       };
     }
 
-    this.http.put<Post>(`http://localhost:3000/api/posts/${id}`, postData, { observe: 'response' })
+    this.http.put<Post>(`http://localhost:3000/api/posts/${id}`, postData)
       .subscribe((response) => {
         this.router.navigate(['/']);
+      }, () => {
+        this.requestError.next();
       });
   }
 
   deletePost(id: string) {
-    return this.http.delete<Post>(`http://localhost:3000/api/posts/${id}`, { observe: 'response' });
+    return this.http.delete<Post>(`http://localhost:3000/api/posts/${id}`);
   }
 }

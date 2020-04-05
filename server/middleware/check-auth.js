@@ -10,6 +10,6 @@ module.exports = (req, res, next) => {
     };
     next();
   } catch (error) {
-    res.status(401).json();
+    res.status(401).json("You must be logged in to do that");
   }
 };

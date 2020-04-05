@@ -17,8 +17,12 @@ router.post("/signup", async (req, res) => {
 
     res.status(201).json(user);
   } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json("That email is already in use");
+    }
+
     console.error(error);
-    res.status(500).json(error);
+    res.status(500).json();
   }
 });
 
@@ -29,13 +33,13 @@ router.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json();
+      return res.status(401).json("Invalid username and password combination");
     }
 
     const result = await bcrypt.compare(req.body.password, user.password);
 
     if (!result) {
-      return res.status(401).json();
+      return res.status(401).json("Invalid username and password combination");
     }
 
     const token = jwt.sign({

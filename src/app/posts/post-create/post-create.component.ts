@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { PostsService } from '../posts.service';
 import { Post } from '../post.model';
@@ -11,7 +12,8 @@ import { mimeType } from './../../validators/mime-type.validator';
   templateUrl: './post-create.component.html',
   styleUrls: ['./post-create.component.scss'],
 })
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
+  private requestErrorSubscription: Subscription;
   private mode: 'create' | 'edit';
   private id: string;
   isLoading = false;
@@ -28,6 +30,11 @@ export class PostCreateComponent implements OnInit {
       content: new FormControl(null, { validators: [Validators.required] }),
       image: new FormControl(null, { validators: [Validators.required], asyncValidators: [mimeType] }),
     });
+
+    this.requestErrorSubscription = this.postsService.getRequestErrorListener()
+      .subscribe(() => {
+        this.isLoading = false;
+      });
 
     // If the id param is present then the form is in edit mode
     this.route.paramMap.subscribe((paramMap) => {
@@ -69,8 +76,6 @@ export class PostCreateComponent implements OnInit {
     } else {
       this.postsService.updatePost(this.id, this.form.value.title, this.form.value.content, this.form.value.image);
     }
-
-    this.form.reset();
   }
 
   // User has selected an image
@@ -93,5 +98,9 @@ export class PostCreateComponent implements OnInit {
       this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file);
+  }
+
+  ngOnDestroy() {
+    this.requestErrorSubscription.unsubscribe();
   }
 }
