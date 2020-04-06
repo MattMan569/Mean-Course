@@ -16,10 +16,10 @@ export class AuthGuard implements CanActivate {
 
     // Determine with the initial value of the
     // BehaviorSubject if the user is authenticated.
-    // If no, redirect.
+    // If not authenticated, redirect.
     authListener.pipe(first()).subscribe((authStatus) => {
       if (!authStatus) {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       }
     });
 

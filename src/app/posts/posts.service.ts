@@ -3,7 +3,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
+import { environment } from './../../environments/environment';
 import { Post } from './post.model';
+
+const SERVER_URL = `${environment.apiUrl}/posts`;
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +31,7 @@ export class PostsService {
     // Set the pagination query parameters
     const queryParams = `?pageSize=${postsPerPage}&page=${currentPage}`;
 
-    this.http.get<{ posts: Post[], count: number }>(`http://localhost:3000/api/posts${queryParams}`, { observe: 'response' })
+    this.http.get<{ posts: Post[], count: number }>(`${SERVER_URL}${queryParams}`, { observe: 'response' })
       .subscribe((response) => {
         this.posts = response.body.posts;
         this.count = response.body.count;
@@ -39,7 +42,7 @@ export class PostsService {
   }
 
   getPost(id: string) {
-    return this.http.get<Post>(`http://localhost:3000/api/posts/${id}`);
+    return this.http.get<Post>(`${SERVER_URL}/${id}`);
   }
 
   // Listen for post updates
@@ -59,7 +62,7 @@ export class PostsService {
     postData.append('content', content);
     postData.append('image', image, title);
 
-    this.http.post<Post>('http://localhost:3000/api/posts', postData, { observe: 'response' })
+    this.http.post<Post>(`${SERVER_URL}`, postData, { observe: 'response' })
       .subscribe((response) => {
         this.router.navigate(['/']);
       }, () => {
@@ -85,7 +88,7 @@ export class PostsService {
       };
     }
 
-    this.http.put<Post>(`http://localhost:3000/api/posts/${id}`, postData)
+    this.http.put<Post>(`${SERVER_URL}/${id}`, postData)
       .subscribe((response) => {
         this.router.navigate(['/']);
       }, () => {
@@ -94,6 +97,6 @@ export class PostsService {
   }
 
   deletePost(id: string) {
-    return this.http.delete<Post>(`http://localhost:3000/api/posts/${id}`);
+    return this.http.delete<Post>(`${SERVER_URL}/${id}`);
   }
 }
