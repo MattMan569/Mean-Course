@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
       error = null;
     }
 
-    cb(error, "server/images");
+    cb(error, "images");
   },
   filename: (req, file, cb) => {
     // Normalize whitespace and file extensions
